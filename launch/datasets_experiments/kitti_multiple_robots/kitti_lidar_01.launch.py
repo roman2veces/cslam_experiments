@@ -28,7 +28,7 @@ def launch_setup(context, *args, **kwargs):
     launch_delay_s = float(launch_delay_s) / rate
 
     # First robot launch file
-    robot_file_number = 0
+    robot_file_number = 1
 
     # CSLAM process
     cslam_proc = IncludeLaunchDescription(
