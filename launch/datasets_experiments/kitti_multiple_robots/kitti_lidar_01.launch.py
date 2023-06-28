@@ -29,6 +29,8 @@ def launch_setup(context, *args, **kwargs):
 
     # First robot launch file
     robot_file_number = 1
+    robot_id = "0"
+    namespace = "/r0"
 
     # CSLAM process
     cslam_proc = IncludeLaunchDescription(
@@ -38,8 +40,8 @@ def launch_setup(context, *args, **kwargs):
         launch_arguments={
             "config_path": config_path,
             "config_file": config_file,
-            "robot_id": str(robot_file_number),
-            "namespace": "/r" + str(robot_file_number),
+            "robot_id": robot_id,
+            "namespace": namespace,
             "max_nb_robots": str(max_nb_robots),
             "enable_simulated_rendezvous": LaunchConfiguration('enable_simulated_rendezvous'),
             "rendezvous_schedule_file": os.path.join(get_package_share_directory("cslam_experiments"),
@@ -59,7 +61,7 @@ def launch_setup(context, *args, **kwargs):
                 "bag_kitti.launch.py",
             )),
         launch_arguments={
-            "namespace": "/r" + str(robot_file_number),
+            "namespace": namespace,
             "bag_file": bag_file,
             "rate": str(rate)   
         }.items(),
@@ -70,8 +72,8 @@ def launch_setup(context, *args, **kwargs):
             os.path.join(get_package_share_directory('cslam_experiments'), 'launch',
                          'odometry', 'rtabmap_kitti_lidar_odometry.launch.py')),
         launch_arguments={
-            "namespace": "/r" + str(robot_file_number),
-            "robot_id": str(robot_file_number),
+            "namespace": namespace,
+            "robot_id": robot_id,
             'log_level': "fatal",
         }.items(),
     )
