@@ -29,8 +29,8 @@ def launch_setup(context, *args, **kwargs):
 
     # First robot launch file
     robot_file_number = 1
-    robot_id = "0"
-    namespace = "/r0"
+    robot_id = "1"
+    namespace = "/r1"
 
     # CSLAM process
     cslam_proc = IncludeLaunchDescription(
@@ -51,7 +51,7 @@ def launch_setup(context, *args, **kwargs):
     
     bag_file = os.path.join(
         get_package_share_directory("cslam_experiments"), "data",
-        dataset + "_" + str(max_nb_robots) + "robots", dataset + "-" + str(robot_file_number))
+        dataset + "_" + str(max_nb_robots) + "robots", dataset + "-" + robot_id)
     bag_proc = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(
@@ -77,6 +77,15 @@ def launch_setup(context, *args, **kwargs):
             'log_level': "fatal",
         }.items(),
     )
+
+    # Map storage node
+    storage_process = Node(
+            namespace=namespace,
+            package='cslam_storage',
+            executable='cslam_storage.py',
+            name='cslam_storage',
+            parameters=[LaunchConfiguration('storage_config')]
+        )
 
     # KITTI specific transform
     tf_process = Node(package="tf2_ros",
@@ -114,6 +123,10 @@ def launch_setup(context, *args, **kwargs):
     schedule.append(tf_process_imu)
     schedule.append(PopLaunchConfigurations())
 
+    schedule.append(PushLaunchConfigurations())
+    schedule.append(storage_process)
+    schedule.append(PopLaunchConfigurations())
+
     return schedule
 
 
@@ -130,5 +143,10 @@ def generate_launch_description():
         DeclareLaunchArgument('rate', default_value='0.2'),
         DeclareLaunchArgument('enable_simulated_rendezvous', default_value='false'),
         DeclareLaunchArgument('rendezvous_config', default_value='kitti00_2robots_lidar.config'),
+        DeclareLaunchArgument('storage_config',
+                              default_value=os.path.join(
+                                  get_package_share_directory('cslam_storage'),
+                                  'config', 'storage.yaml'),
+                              description=''),
         OpaqueFunction(function=launch_setup)
     ])
