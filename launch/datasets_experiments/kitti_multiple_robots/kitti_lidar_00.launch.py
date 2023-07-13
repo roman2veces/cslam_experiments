@@ -144,7 +144,7 @@ def generate_launch_description():
         DeclareLaunchArgument('storage_config',
                               default_value=os.path.join(
                                   get_package_share_directory('cslam_storage'),
-                                  'config', 'storage.yaml'),
+                                  'config', 'robot_storage.yaml'),
                               description=''),
         OpaqueFunction(function=launch_setup)
     ])

@@ -107,13 +107,13 @@ def launch_setup(context, *args, **kwargs):
     schedule.append(odom_proc)
     schedule.append(PopLaunchConfigurations())        
     
-    schedule.append(PushLaunchConfigurations())
+    # schedule.append(PushLaunchConfigurations())
     # We need some delays here to allow the robot to get initialized before 
     # launching the bag
-    schedule.append(
-            TimerAction(period=float(launch_delay_s),
-                        actions=[bag_proc]))
-    schedule.append(PopLaunchConfigurations())
+    # schedule.append(
+    #         TimerAction(period=float(launch_delay_s),
+    #                     actions=[bag_proc]))
+    # schedule.append(PopLaunchConfigurations())
     
     schedule.append(PushLaunchConfigurations())
     schedule.append(tf_process)
@@ -146,7 +146,7 @@ def generate_launch_description():
         DeclareLaunchArgument('storage_config',
                               default_value=os.path.join(
                                   get_package_share_directory('cslam_storage'),
-                                  'config', 'storage.yaml'),
+                                  'config', 'robot_storage.yaml'),
                               description=''),
         OpaqueFunction(function=launch_setup)
     ])
