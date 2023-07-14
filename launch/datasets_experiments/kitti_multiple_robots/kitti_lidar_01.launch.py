@@ -107,13 +107,13 @@ def launch_setup(context, *args, **kwargs):
     schedule.append(odom_proc)
     schedule.append(PopLaunchConfigurations())        
     
-    # schedule.append(PushLaunchConfigurations())
     # We need some delays here to allow the robot to get initialized before 
     # launching the bag
-    # schedule.append(
-    #         TimerAction(period=float(launch_delay_s),
-    #                     actions=[bag_proc]))
-    # schedule.append(PopLaunchConfigurations())
+    schedule.append(PushLaunchConfigurations())
+    schedule.append(
+            TimerAction(period=float(launch_delay_s),
+                        actions=[bag_proc]))
+    schedule.append(PopLaunchConfigurations())
     
     schedule.append(PushLaunchConfigurations())
     schedule.append(tf_process)
