@@ -27,8 +27,8 @@ def launch_setup(context, *args, **kwargs):
     robot_delay_s = float(robot_delay_s) / rate
     launch_delay_s = float(launch_delay_s) / rate
 
-    robot_id = "0"
-    namespace = "r0"
+    robot_id = "1"
+    namespace = "/r1"
 
     # CSLAM process
     cslam_proc = IncludeLaunchDescription(
@@ -47,9 +47,12 @@ def launch_setup(context, *args, **kwargs):
         }.items(),
     )
     
+    # bag_file = os.path.join(
+    #     get_package_share_directory("cslam_experiments"), "data",
+    #     dataset + "_" + str(max_nb_robots) + "robots", dataset + "-" + robot_id)
     bag_file = os.path.join(
         get_package_share_directory("cslam_experiments"), "data",
-        dataset + "_" + str(max_nb_robots) + "robots", dataset + "-" + robot_id)
+        dataset + "_" + str(max_nb_robots) + "robots", dataset + "-0")
     bag_proc = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
             os.path.join(
