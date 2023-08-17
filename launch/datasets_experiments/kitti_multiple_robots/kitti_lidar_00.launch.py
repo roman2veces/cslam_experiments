@@ -1,4 +1,5 @@
 import os
+import distutils.util
 
 from ament_index_python.packages import get_package_share_directory
 
@@ -22,13 +23,14 @@ def launch_setup(context, *args, **kwargs):
     robot_delay_s = LaunchConfiguration('robot_delay_s').perform(context)  
     launch_delay_s = LaunchConfiguration('launch_delay_s').perform(context)  
     rate = float(LaunchConfiguration('rate').perform(context))
+    enable_bag = distutils.util.strtobool(LaunchConfiguration('enable_bag').perform(context))
 
     # Ajust value according to rate
     robot_delay_s = float(robot_delay_s) / rate
     launch_delay_s = float(launch_delay_s) / rate
 
-    robot_id = "1"
-    namespace = "/r1"
+    robot_id = "0"
+    namespace = "/r0"
 
     # CSLAM process
     cslam_proc = IncludeLaunchDescription(
@@ -50,23 +52,24 @@ def launch_setup(context, *args, **kwargs):
     # bag_file = os.path.join(
     #     get_package_share_directory("cslam_experiments"), "data",
     #     dataset + "_" + str(max_nb_robots) + "robots", dataset + "-" + robot_id)
-    bag_file = os.path.join(
-        get_package_share_directory("cslam_experiments"), "data",
-        dataset + "_" + str(max_nb_robots) + "robots", dataset + "-0")
-    bag_proc = IncludeLaunchDescription(
-        PythonLaunchDescriptionSource(
-            os.path.join(
-                get_package_share_directory("cslam_experiments"),
-                "launch",
-                "sensors",
-                "bag_kitti.launch.py",
-            )),
-        launch_arguments={
-            "namespace": namespace,
-            "bag_file": bag_file,
-            "rate": str(rate)   
-        }.items(),
-    )
+    if enable_bag:
+        bag_file = os.path.join(
+            get_package_share_directory("cslam_experiments"), "data",
+            dataset + "_" + str(max_nb_robots) + "robots", dataset + "-0")
+        bag_proc = IncludeLaunchDescription(
+            PythonLaunchDescriptionSource(
+                os.path.join(
+                    get_package_share_directory("cslam_experiments"),
+                    "launch",
+                    "sensors",
+                    "bag_kitti.launch.py",
+                )),
+            launch_arguments={
+                "namespace": namespace,
+                "bag_file": bag_file,
+                "rate": str(rate)   
+            }.items(),
+        )
 
     odom_proc = IncludeLaunchDescription(
         PythonLaunchDescriptionSource(
@@ -108,13 +111,14 @@ def launch_setup(context, *args, **kwargs):
     schedule.append(odom_proc)
     schedule.append(PopLaunchConfigurations())        
     
-    schedule.append(PushLaunchConfigurations())
-    # We need some delays here to allow the robot to get initialized before 
-    # launching the bag
-    schedule.append(
-            TimerAction(period=float(launch_delay_s),
-                        actions=[bag_proc]))
-    schedule.append(PopLaunchConfigurations())
+    if enable_bag:
+        schedule.append(PushLaunchConfigurations())
+        # We need some delays here to allow the robot to get initialized before 
+        # launching the bag
+        schedule.append(
+                TimerAction(period=float(launch_delay_s),
+                            actions=[bag_proc]))
+        schedule.append(PopLaunchConfigurations())
     
     schedule.append(PushLaunchConfigurations())
     schedule.append(tf_process)
@@ -149,5 +153,6 @@ def generate_launch_description():
                                   get_package_share_directory('cslam_storage'),
                                   'config', 'robot_storage.yaml'),
                               description=''),
+        DeclareLaunchArgument('enable_bag', default_value='false'),
         OpaqueFunction(function=launch_setup)
     ])
